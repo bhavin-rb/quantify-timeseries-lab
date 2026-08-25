@@ -271,3 +271,119 @@ export function correlationMatrix(seriesByTicker) {
   }
   return { tickers, matrix };
 }
+
+export function cumulativeReturns(returns) {
+  const cum = [1];
+  for (let i = 0; i < returns.length; i += 1) {
+    cum.push(cum[cum.length - 1] * Math.exp(returns[i]));
+  }
+  return cum;
+}
+
+export function cumulativeReturnPct(returns) {
+  const cum = cumulativeReturns(returns);
+  return (cum[cum.length - 1] - 1) * 100;
+}
+
+export function drawdownCurve(returns) {
+  const cum = cumulativeReturns(returns);
+  const peak = [cum[0]];
+  const dd = [0];
+  for (let i = 1; i < cum.length; i += 1) {
+    peak.push(Math.max(peak[i - 1], cum[i]));
+    dd.push(peak[i] > 0 ? (cum[i] - peak[i]) / peak[i] : 0);
+  }
+  return dd;
+}
+
+export function maxDrawdown(returns) {
+  const dd = drawdownCurve(returns);
+  let min = 0;
+  for (const v of dd) {
+    if (v < min) min = v;
+  }
+  return min * 100;
+}
+
+export function downsideDeviation(returns, riskFreeDaily = 0) {
+  const down = returns.filter((r) => r < riskFreeDaily).map((r) => r - riskFreeDaily);
+  if (down.length === 0) return 0;
+  const m = mean(down);
+  return Math.sqrt(down.reduce((s, v) => s + (v - m) ** 2, 0) / down.length);
+}
+
+export function sortinoRatio(returns, riskFreeDaily = 0, periodsPerYear = 252) {
+  const annReturn = mean(returns) * periodsPerYear;
+  const dd = downsideDeviation(returns, riskFreeDaily);
+  const annDownside = dd * Math.sqrt(periodsPerYear);
+  return annDownside === 0 ? 0 : annReturn / annDownside;
+}
+
+export function beta(portfolioReturns, benchmarkReturns) {
+  const n = Math.min(portfolioReturns.length, benchmarkReturns.length);
+  if (n < 2) return 0;
+  const rp = portfolioReturns.slice(0, n);
+  const rb = benchmarkReturns.slice(0, n);
+  const mp = mean(rp);
+  const mb = mean(rb);
+  let cov = 0;
+  let varB = 0;
+  for (let i = 0; i < n; i += 1) {
+    cov += (rp[i] - mp) * (rb[i] - mb);
+    varB += (rb[i] - mb) ** 2;
+  }
+  return varB === 0 ? 0 : cov / varB;
+}
+
+export function rollingSharpe(returns, window, riskFreeDaily = 0, periodsPerYear = 252) {
+  const out = [];
+  for (let i = 0; i < returns.length; i += 1) {
+    if (i + 1 < window) continue;
+    const slice = returns.slice(i - window + 1, i + 1);
+    const m = mean(slice);
+    const s = std(slice);
+    const annReturn = m * periodsPerYear;
+    const annVol = s * Math.sqrt(periodsPerYear);
+    out.push({
+      date: null,
+      sharpe: annVol === 0 ? 0 : (annReturn - riskFreeDaily * periodsPerYear) / annVol,
+    });
+  }
+  return out;
+}
+
+export function contributionToVolatility(returnsByTicker, window) {
+  const tickers = Object.keys(returnsByTicker);
+  const n = Math.min(...tickers.map((t) => returnsByTicker[t].length));
+  if (n < window + 1) return [];
+
+  const weights = {};
+  for (const t of tickers) weights[t] = 1 / tickers.length;
+
+  const results = [];
+  for (let i = 0; i <= n - window - 1; i += 1) {
+    const date = null;
+    const sliceReturns = {};
+    for (const t of tickers) {
+      sliceReturns[t] = returnsByTicker[t].slice(i, i + window);
+    }
+
+    const portSlice = [];
+    for (let j = 0; j < window; j += 1) {
+      let r = 0;
+      for (const t of tickers) {
+        r += weights[t] * (sliceReturns[t][j] || 0);
+      }
+      portSlice.push(r);
+    }
+    const portVol = std(portSlice) * Math.sqrt(252);
+
+    const contributions = {};
+    for (const t of tickers) {
+      const mcr = pearsonCorrelation(sliceReturns[t], portSlice) * (std(sliceReturns[t]) * Math.sqrt(252)) / (portVol || 1);
+      contributions[t] = weights[t] * mcr;
+    }
+    results.push({ date, contributions });
+  }
+  return results;
+}

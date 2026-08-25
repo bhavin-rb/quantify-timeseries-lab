@@ -125,6 +125,34 @@ The project should remain focused on a practical MVP, avoiding unnecessary compl
 - Refine UI/UX for simplicity and usability  
 - Optimize backend for performance  
 
+## Phase 7 — Portfolio Insights Expansion
+
+### Objectives
+Enhance the portfolio dashboard with deeper risk and performance analytics, while maintaining consistent UI/UX across single‑ticker and portfolio views.
+
+### New Metrics (Info Tabs)
+- **Max Drawdown** — worst peak‑to‑trough decline.
+- **Cumulative Return** — total portfolio growth over the selected period.
+- **Sortino Ratio** — risk‑adjusted return penalizing only downside volatility.
+- **Beta vs Benchmark** — sensitivity of portfolio returns to a chosen market index.
+
+### New Charts
+- **Drawdown Curve** — visualize portfolio declines and recovery periods.
+- **Rolling Sharpe Ratio** — track changes in risk‑adjusted performance over time.
+- **Contribution to Volatility** — show which tickers drive portfolio risk the most.
+- **Cumulative Return Curve** — growth‑of‑$1 visualization for intuitive performance tracking.
+
+### UI/UX Enhancements
+- Ensure **axis labels** are clear, padded, and consistently styled.
+- Maintain **uniform spacing** between info boxes and chart enclosures.
+- Improve **mobile view fitting** so portfolio charts align with single‑ticker charts.
+- Apply **consistent font scaling and legend placement** across all charts.
+
+### Implementation Notes
+- Add these features without altering existing functionality.
+- Keep new metrics and charts toggleable to avoid clutter for casual users.
+- Ensure styling matches the established dashboard theme.
+
  **Success criteria checklist**
 - End-to-end flow works: data fetch → clean → analyze → visualize → export  
 - No console errors in frontend or backend

@@ -5,6 +5,7 @@ import HistogramKdeChart from "../components/HistogramKdeChart.jsx";
 import QqPlot, { RollingChart } from "../components/QqPlot.jsx";
 import CorrelationHeatmap from "../components/CorrelationHeatmap.jsx";
 import DataPreview from "../components/DataPreview.jsx";
+import AdvancedInsightsTab from "./AdvancedInsightsTab.jsx";
 
 const TICKER_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6", "#e879f9", "#94a3b8"];
 
@@ -30,11 +31,9 @@ function SummaryGrid({ items }) {
   );
 }
 
-function SingleTickerTab() {
-  const [ticker, setTicker] = useState("AAPL");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [window, setWindow] = useState(30);
+function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow }) {
+  const ticker = tickers.split(",")[0]?.trim() || "";
+  const setTicker = (v) => setTickers(v);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [eda, setEda] = useState(null);
@@ -184,11 +183,7 @@ function SingleTickerTab() {
   );
 }
 
-function PortfolioTab() {
-  const [tickers, setTickers] = useState("AAPL,MSFT,TSLA");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [window, setWindow] = useState(30);
+function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
@@ -345,6 +340,10 @@ function PortfolioTab() {
 
 export default function Dashboard() {
   const [tab, setTab] = useState("single");
+  const [tickers, setTickers] = useState("AAPL,MSFT,TSLA");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [window, setWindow] = useState(30);
 
   return (
     <main className="dashboard">
@@ -366,9 +365,38 @@ export default function Dashboard() {
         >
           🔗 Portfolio
         </button>
+        <button
+          className={`tab-btn ${tab === "insights" ? "active" : ""}`}
+          onClick={() => setTab("insights")}
+        >
+          🔬 Advanced Insights
+        </button>
       </div>
 
-      {tab === "single" ? <SingleTickerTab /> : <PortfolioTab />}
+      {tab === "single" && (
+        <SingleTickerTab
+          tickers={tickers} setTickers={setTickers}
+          startDate={startDate} setStartDate={setStartDate}
+          endDate={endDate} setEndDate={setEndDate}
+          window={window} setWindow={setWindow}
+        />
+      )}
+      {tab === "portfolio" && (
+        <PortfolioTab
+          tickers={tickers} setTickers={setTickers}
+          startDate={startDate} setStartDate={setStartDate}
+          endDate={endDate} setEndDate={setEndDate}
+          window={window} setWindow={setWindow}
+        />
+      )}
+      {tab === "insights" && (
+        <AdvancedInsightsTab
+          tickers={tickers}
+          startDate={startDate}
+          endDate={endDate}
+          window={window}
+        />
+      )}
     </main>
   );
 }
