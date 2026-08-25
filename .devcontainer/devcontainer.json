@@ -1,0 +1,14 @@
+// For format details, see https://aka.ms/devcontainer.json
+{
+  "name": "Debian Node.js",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+  "remoteUser": "root"
+}

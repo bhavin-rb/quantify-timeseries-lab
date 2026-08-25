@@ -1,0 +1,18 @@
+{
+  "name": "timeseries-lab",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TimeSeries Lab - financial time series EDA web app",
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "start": "concurrently -n server,client -c blue,green \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "start:server": "npm --prefix server start",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "build:all": "npm run build && npm run start:server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
