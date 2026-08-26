@@ -5,6 +5,7 @@ import HistogramKdeChart from "../components/HistogramKdeChart.jsx";
 import QqPlot, { RollingChart } from "../components/QqPlot.jsx";
 import CorrelationHeatmap from "../components/CorrelationHeatmap.jsx";
 import DataPreview from "../components/DataPreview.jsx";
+import TickerSearch from "../components/TickerSearch.jsx";
 import AdvancedInsightsTab from "./AdvancedInsightsTab.jsx";
 
 const TICKER_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6", "#e879f9", "#94a3b8"];
@@ -62,10 +63,10 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
       <div className="controls">
         <div className="control-field">
           <label>Ticker</label>
-          <input
+          <TickerSearch
             value={ticker}
-            onChange={(e) => setTicker(e.target.value.toUpperCase())}
-            placeholder="Enter tickers e.g. AAPL, MSFT, TSLA"
+            onChange={setTicker}
+            placeholder="Type company name or ticker (e.g. Apple, AAPL)"
             maxLength={10}
           />
         </div>
@@ -221,10 +222,10 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
       <div className="controls">
         <div className="control-field">
           <label>Tickers (comma-separated)</label>
-          <input
+          <TickerSearch
             value={tickers}
-            onChange={(e) => setTickers(e.target.value.toUpperCase())}
-            placeholder="Enter tickers e.g. AAPL, MSFT, TSLA"
+            onChange={setTickers}
+            placeholder="Type company name or ticker (e.g. Apple, AAPL)"
           />
         </div>
         <div className="control-field">
@@ -358,6 +359,7 @@ export default function Dashboard() {
     setEndDate("");
     setWindow(30);
     setResetKey((k) => k + 1);
+    setTab((t) => t === "insights" ? "portfolio" : t);
   }, []);
 
   return (
@@ -380,12 +382,14 @@ export default function Dashboard() {
         >
           🔗 Portfolio
         </button>
-        <button
-          className={`tab-btn ${tab === "insights" ? "active" : ""}`}
-          onClick={() => setTab("insights")}
-        >
-          🔬 Advanced Insights
-        </button>
+        {tab === "portfolio" && (
+          <button
+            className={`tab-btn ${tab === "insights" ? "active" : ""}`}
+            onClick={() => setTab("insights")}
+          >
+            🔬 Advanced Insights
+          </button>
+        )}
       </div>
 
       {tab === "single" && (
