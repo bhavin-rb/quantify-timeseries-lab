@@ -14,8 +14,7 @@ export default function Hero({ navigate }) {
       <div className="hero-overlay" />
       <div className="hero-content">
         <span className="hero-badge">
-          <span className="pulse-dot" />
-          Powered by Tiingo API
+          <img src="/images/logo_main_new.png" alt="Quantify" className="hero-logo" />
         </span>
         <h1>
           Prepare. Clean. Explore.

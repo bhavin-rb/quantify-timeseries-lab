@@ -34,6 +34,21 @@ html[data-theme="light"] {
   --shadow: 0 10px 30px rgba(15, 40, 90, 0.12);
 }
 
+html[data-theme="light"] .hero-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 28, 51, 0.55) 0%,
+    rgba(15, 28, 51, 0.30) 30%,
+    rgba(244, 247, 251, 0.60) 65%,
+    #f4f7fb 100%
+  );
+}
+
+html[data-theme="light"] .hero-badge {
+  background: rgba(15, 28, 51, 0.70);
+  border-color: rgba(15, 28, 51, 0.18);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -252,6 +267,12 @@ button {
   border-radius: 50%;
   background: var(--success);
   animation: pulse 1.8s infinite;
+}
+
+.hero-logo {
+  height: 28px;
+  width: auto;
+  display: block;
 }
 
 @keyframes pulse {
