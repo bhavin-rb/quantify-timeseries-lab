@@ -62,14 +62,14 @@ function CumulativeReturnChart({ data, benchmarkData, tickers, benchmark }) {
   return (
     <div className="chart-wrap tall">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={merged} margin={{ top: 8, right: 16, bottom: 24, left: 16 }}>
+        <LineChart data={merged} margin={{ top: 8, right: 16, bottom: 72, left: 16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.45} />
           <XAxis dataKey="date" tick={{ fontSize: 11 }} minTickGap={42} stroke="var(--text-muted)"
             label={{ value: "Date", position: "insideBottom", offset: -8, fill: "var(--text-muted)", fontSize: 12 }} />
           <YAxis tick={{ fontSize: 11 }} stroke="var(--text-muted)" width={64}
             label={CustomYLabel({ label: "Cumulative Return (%)" })} />
           <Tooltip content={<ChartTooltip formatter={(v) => `${Number(v).toFixed(2)}%`} />} />
-          <Legend wrapperStyle={{ fontSize: "0.8rem" }} />
+          <Legend wrapperStyle={{ fontSize: "0.8rem", paddingTop: 14 }} />
           <Line type="monotone" dataKey="cumulative" name="Portfolio" stroke="var(--primary)" strokeWidth={2} dot={false} animationDuration={700} />
           {benchmarkData && (
             <Line type="monotone" dataKey="benchmark" name={benchmark} stroke="var(--text-muted)" strokeWidth={1.5} dot={false} strokeDasharray="5 5" animationDuration={700} />
@@ -120,14 +120,14 @@ function ContributionChart({ data, tickers }) {
   return (
     <div className="chart-wrap">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 24, left: 16 }}>
+        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 72, left: 16 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.45} />
           <XAxis dataKey="date" tick={{ fontSize: 11 }} minTickGap={42} stroke="var(--text-muted)"
             label={{ value: "Date", position: "insideBottom", offset: -8, fill: "var(--text-muted)", fontSize: 12 }} />
           <YAxis tick={{ fontSize: 11 }} stroke="var(--text-muted)" width={64}
             label={CustomYLabel({ label: "Vol. Contribution" })} />
           <Tooltip content={<ChartTooltip formatter={(v) => Number(v).toFixed(4)} />} />
-          <Legend wrapperStyle={{ fontSize: "0.8rem" }} />
+          <Legend wrapperStyle={{ fontSize: "0.8rem", paddingTop: 14 }} />
           {tickers.map((t, i) => (
             <Bar key={t} dataKey={t} name={t} stackId="a" fill={TICKER_COLORS[i % TICKER_COLORS.length]} fillOpacity={0.85} animationDuration={700} />
           ))}
@@ -137,7 +137,7 @@ function ContributionChart({ data, tickers }) {
   );
 }
 
-export default function AdvancedInsightsTab({ tickers, startDate, endDate, window }) {
+export default function AdvancedInsightsTab({ tickers, startDate, endDate, window, resetAll }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
@@ -173,6 +173,9 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
       <div className="controls" style={{ justifyContent: "center" }}>
         <button className="btn btn-primary" onClick={run} disabled={loading || !hasTickers}>
           {loading ? "Analyzing..." : "Analyze Insights"}
+        </button>
+        <button className="btn btn-reset" onClick={resetAll}>
+          ↺ Reset
         </button>
       </div>
 

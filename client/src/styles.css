@@ -340,6 +340,18 @@ button {
   border-color: var(--primary);
 }
 
+.btn-reset {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+}
+
+.btn-reset:hover {
+  transform: translateY(-2px);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 .hero-stats {
   display: flex;
   gap: 14px;

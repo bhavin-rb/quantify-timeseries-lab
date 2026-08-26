@@ -31,7 +31,7 @@ function SummaryGrid({ items }) {
   );
 }
 
-function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow }) {
+function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow, resetAll }) {
   const ticker = tickers.split(",")[0]?.trim() || "";
   const setTicker = (v) => setTickers(v);
   const [loading, setLoading] = useState(false);
@@ -65,7 +65,7 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
           <input
             value={ticker}
             onChange={(e) => setTicker(e.target.value.toUpperCase())}
-            placeholder="e.g. AAPL"
+            placeholder="Enter tickers e.g. AAPL, MSFT, TSLA"
             maxLength={10}
           />
         </div>
@@ -89,6 +89,9 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
         </div>
         <button className="btn btn-primary" onClick={run} disabled={loading || !ticker}>
           {loading ? "Analyzing…" : "Analyze"}
+        </button>
+        <button className="btn btn-reset" onClick={resetAll}>
+          ↺ Reset
         </button>
       </div>
 
@@ -183,7 +186,7 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
   );
 }
 
-function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow }) {
+function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow, resetAll }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
@@ -221,7 +224,7 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
           <input
             value={tickers}
             onChange={(e) => setTickers(e.target.value.toUpperCase())}
-            placeholder="AAPL,MSFT,TSLA"
+            placeholder="Enter tickers e.g. AAPL, MSFT, TSLA"
           />
         </div>
         <div className="control-field">
@@ -244,6 +247,9 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
         </div>
         <button className="btn btn-primary" onClick={run} disabled={loading}>
           {loading ? "Analyzing…" : "Analyze"}
+        </button>
+        <button className="btn btn-reset" onClick={resetAll}>
+          ↺ Reset
         </button>
       </div>
 
@@ -340,10 +346,19 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
 
 export default function Dashboard() {
   const [tab, setTab] = useState("single");
-  const [tickers, setTickers] = useState("AAPL,MSFT,TSLA");
+  const [tickers, setTickers] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [window, setWindow] = useState(30);
+  const [resetKey, setResetKey] = useState(0);
+
+  const resetAll = useCallback(() => {
+    setTickers("");
+    setStartDate("");
+    setEndDate("");
+    setWindow(30);
+    setResetKey((k) => k + 1);
+  }, []);
 
   return (
     <main className="dashboard">
@@ -375,26 +390,32 @@ export default function Dashboard() {
 
       {tab === "single" && (
         <SingleTickerTab
+          key={`single-${resetKey}`}
           tickers={tickers} setTickers={setTickers}
           startDate={startDate} setStartDate={setStartDate}
           endDate={endDate} setEndDate={setEndDate}
           window={window} setWindow={setWindow}
+          resetAll={resetAll}
         />
       )}
       {tab === "portfolio" && (
         <PortfolioTab
+          key={`portfolio-${resetKey}`}
           tickers={tickers} setTickers={setTickers}
           startDate={startDate} setStartDate={setStartDate}
           endDate={endDate} setEndDate={setEndDate}
           window={window} setWindow={setWindow}
+          resetAll={resetAll}
         />
       )}
       {tab === "insights" && (
         <AdvancedInsightsTab
+          key={`insights-${resetKey}`}
           tickers={tickers}
           startDate={startDate}
           endDate={endDate}
           window={window}
+          resetAll={resetAll}
         />
       )}
     </main>
