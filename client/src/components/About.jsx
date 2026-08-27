@@ -1,12 +1,13 @@
 import { useReveal } from "../hooks.js";
+import { FiFilter, FiBarChart, FiActivity, FiGrid, FiSun, FiMoon, FiDownload } from "react-icons/fi";
 
 const FEATURES = [
-  { icon: "🗂️", label: "Automatic cleaning & dedup" },
-  { icon: "📊", label: "Summary statistics & returns" },
-  { icon: "📈", label: "Rolling volatility diagnostics" },
-  { icon: "🔗", label: "Portfolio correlation heatmap" },
-  { icon: "🌗", label: "Dark & light themes" },
-  { icon: "⬇️", label: "One-click CSV export" },
+  { icon: <FiFilter size={16} />, label: "Automatic cleaning & dedup" },
+  { icon: <FiBarChart size={16} />, label: "Summary statistics & returns" },
+  { icon: <FiActivity size={16} />, label: "Rolling volatility diagnostics" },
+  { icon: <FiGrid size={16} />, label: "Portfolio correlation heatmap" },
+  { icon: <><FiSun size={14} /><FiMoon size={14} /></>, label: "Dark & light themes" },
+  { icon: <FiDownload size={16} />, label: "One-click CSV export" },
 ];
 
 export default function About() {

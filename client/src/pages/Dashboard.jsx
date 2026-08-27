@@ -7,6 +7,7 @@ import CorrelationHeatmap from "../components/CorrelationHeatmap.jsx";
 import DataPreview from "../components/DataPreview.jsx";
 import TickerSearch from "../components/TickerSearch.jsx";
 import AdvancedInsightsTab from "./AdvancedInsightsTab.jsx";
+import { FiAlertTriangle, FiDownload, FiRotateCcw, FiTrendingUp, FiLink, FiEye } from "react-icons/fi";
 
 const TICKER_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6", "#e879f9", "#94a3b8"];
 
@@ -92,11 +93,11 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
           {loading ? "Analyzing…" : "Analyze"}
         </button>
         <button className="btn btn-reset" onClick={resetAll}>
-          ↺ Reset
+          <FiRotateCcw size={14} /> Reset
         </button>
       </div>
 
-      {error && <div className="error-banner">⚠️ {error}</div>}
+      {error && <div className="error-banner"><FiAlertTriangle size={16} /> {error}</div>}
       {loading && <Loading text="Fetching data from Tiingo and computing EDA…" />}
 
       {eda && summary && (
@@ -133,7 +134,7 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
                   downloadCsv(`${summary.ticker.toLowerCase()}-cleaned.csv`, ["date", "close"], eda.series)
                 }
               >
-                ⬇️ Export cleaned CSV ({eda.series.length} rows)
+                <FiDownload size={16} /> Export cleaned CSV ({eda.series.length} rows)
               </button>
             </div>
           </div>
@@ -250,11 +251,11 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
           {loading ? "Analyzing…" : "Analyze"}
         </button>
         <button className="btn btn-reset" onClick={resetAll}>
-          ↺ Reset
+          <FiRotateCcw size={14} /> Reset
         </button>
       </div>
 
-      {error && <div className="error-banner">⚠️ {error}</div>}
+      {error && <div className="error-banner"><FiAlertTriangle size={16} /> {error}</div>}
       {loading && <Loading text="Merging tickers and computing correlations…" />}
 
       {data && (
@@ -278,14 +279,14 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
             <h3>Merged close prices (equal-weight portfolio)</h3>
             <p className="sub">Intersected trading dates only</p>
             <PriceChart data={data.prices} series={priceSeries} tall />
-            <div style={{ marginTop: 14, textAlign: "right" }}>
+            <div style={{ marginTop: 4, textAlign: "right" }}>
               <button
                 className="btn btn-ghost"
                 onClick={() =>
                   downloadCsv("portfolio-prices.csv", ["date", ...data.tickers], data.prices)
                 }
               >
-                ⬇️ Export prices CSV ({data.prices.length} rows)
+                <FiDownload size={16} /> Export prices CSV ({data.prices.length} rows)
               </button>
             </div>
           </div>
@@ -374,20 +375,20 @@ export default function Dashboard() {
           className={`tab-btn ${tab === "single" ? "active" : ""}`}
           onClick={() => setTab("single")}
         >
-          📈 Single Ticker
+          <FiTrendingUp size={16} /> Single Ticker
         </button>
         <button
           className={`tab-btn ${tab === "portfolio" ? "active" : ""}`}
           onClick={() => setTab("portfolio")}
         >
-          🔗 Portfolio
+          <FiLink size={16} /> Portfolio
         </button>
         {tab === "portfolio" && (
           <button
             className={`tab-btn ${tab === "insights" ? "active" : ""}`}
             onClick={() => setTab("insights")}
           >
-            🔬 Advanced Insights
+            <FiEye size={16} /> Advanced Insights
           </button>
         )}
       </div>

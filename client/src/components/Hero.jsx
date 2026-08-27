@@ -1,4 +1,5 @@
 import { useReveal, useParallax } from "../hooks.js";
+import { FiArrowRight, FiArrowDown } from "react-icons/fi";
 
 export default function Hero({ navigate }) {
   const revealRef = useReveal();
@@ -28,7 +29,7 @@ export default function Hero({ navigate }) {
         </p>
         <div className="hero-actions">
           <button className="btn btn-primary" onClick={() => navigate("/dashboard")}>
-            Launch Dashboard →
+            Launch Dashboard <FiArrowRight size={16} />
           </button>
           <a className="btn btn-ghost" href="#about">
             Learn more
@@ -46,7 +47,7 @@ export default function Hero({ navigate }) {
           </div>
         </div>
       </div>
-      <span className="hero-scroll">Scroll ↓</span>
+      <span className="hero-scroll">Scroll <FiArrowDown size={14} /></span>
     </section>
   );
 }

@@ -6,6 +6,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
 } from "recharts";
 import ChartTooltip from "./ChartTooltip.jsx";
 
@@ -132,7 +133,7 @@ export function RollingChart({ data, series, xLabel, yLabel }) {
   return (
     <div className="chart-wrap">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 24, left: 12 }}>
+        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 68, left: 12 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.45} />
           <XAxis
             dataKey="date"
@@ -149,6 +150,7 @@ export function RollingChart({ data, series, xLabel, yLabel }) {
           <Tooltip
             content={<ChartTooltip formatter={(v) => Number(v).toFixed(4)} />}
           />
+          <Legend wrapperStyle={{ fontSize: "0.8rem", paddingTop: 14 }} />
           {series.map((s) => (
             <Line
               key={s.key}

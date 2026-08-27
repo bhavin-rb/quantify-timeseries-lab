@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { downloadCsv } from "../api.js";
+import { FiDownload } from "react-icons/fi";
 
 export default function DataPreview({ data, title }) {
   const columns = useMemo(() => {
@@ -23,7 +24,7 @@ export default function DataPreview({ data, title }) {
           className="btn btn-ghost"
           onClick={() => downloadCsv(`${title.toLowerCase().replace(/\s+/g, "-")}.csv`, columns, data)}
         >
-          ⬇️ Export CSV ({data.length} rows)
+          <FiDownload size={16} /> Export CSV ({data.length} rows)
         </button>
       </div>
       <div className="table-scroll">

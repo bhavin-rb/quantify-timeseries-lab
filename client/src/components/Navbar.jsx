@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FiSun, FiMoon } from "react-icons/fi";
 
 export default function Navbar({ theme, onToggleTheme, route, navigate }) {
   const [scrolled, setScrolled] = useState(false);
@@ -36,7 +37,7 @@ export default function Navbar({ theme, onToggleTheme, route, navigate }) {
           title="Toggle theme"
           aria-label="Toggle theme"
         >
-          {theme === "dark" ? "☀️" : "🌙"}
+          {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
         </button>
       </div>
     </nav>

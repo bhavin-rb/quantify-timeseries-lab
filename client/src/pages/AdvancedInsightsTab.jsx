@@ -16,6 +16,7 @@ import {
 import { apiGet, downloadCsv, formatNum } from "../api.js";
 import ChartTooltip from "../components/ChartTooltip.jsx";
 import { RollingChart } from "../components/QqPlot.jsx";
+import { FiAlertTriangle, FiDownload, FiRotateCcw } from "react-icons/fi";
 
 const TICKER_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6", "#e879f9", "#94a3b8"];
 
@@ -166,20 +167,18 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
       }))
     : null;
 
-  const hasTickers = tickers && tickers.split(",").filter((t) => t.trim()).length >= 2;
-
   return (
     <>
       <div className="controls" style={{ justifyContent: "center" }}>
-        <button className="btn btn-primary" onClick={run} disabled={loading || !hasTickers}>
+        <button className="btn btn-primary" onClick={run} disabled={loading || !tickers || tickers.split(",").filter((t) => t.trim()).length < 2}>
           {loading ? "Analyzing..." : "Analyze Insights"}
         </button>
         <button className="btn btn-reset" onClick={resetAll}>
-          ↺ Reset
+          <FiRotateCcw size={14} /> Reset
         </button>
       </div>
 
-      {error && <div className="error-banner">⚠️ {error}</div>}
+      {error && <div className="error-banner"><FiAlertTriangle size={16} /> {error}</div>}
       {loading && <Loading text="Fetching data and computing advanced metrics..." />}
 
       {data && (
@@ -190,7 +189,6 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
               vs {data.benchmark} · {data.summary.observations} days · Rolling {data.rollingWindow}d
             </span>
           </div>
-
           <SummaryGrid
             items={[
               { label: "Max Drawdown", value: `${data.summary.maxDrawdown.toFixed(2)}%`, tone: "negative" },
@@ -260,7 +258,7 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
                 })))
               }
             >
-              ⬇️ Export insights CSV
+              <FiDownload size={16} /> Export insights CSV
             </button>
           </div>
         </>

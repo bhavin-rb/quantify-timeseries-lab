@@ -187,8 +187,8 @@ button {
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--bg-elevated);
-  font-size: 1.05rem;
-  transition: transform 0.3s ease, background var(--transition);
+  color: var(--primary-strong);
+  transition: transform 0.3s ease, background var(--transition), color var(--transition);
 }
 
 .theme-toggle:hover {
@@ -579,6 +579,9 @@ button {
 }
 
 .tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 11px 26px;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -724,6 +727,9 @@ button {
 }
 
 .error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: color-mix(in srgb, var(--danger) 12%, var(--bg-card));
   border: 1px solid color-mix(in srgb, var(--danger) 45%, transparent);
   color: var(--danger);
