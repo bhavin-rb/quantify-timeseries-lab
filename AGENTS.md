@@ -153,6 +153,51 @@ Enhance the portfolio dashboard with deeper risk and performance analytics, whil
 - Keep new metrics and charts toggleable to avoid clutter for casual users.
 - Ensure styling matches the established dashboard theme.
 
+## Phase 8 — Mode-Specific Insights Tabs
+
+### Scope
+For each analysis mode (Single Ticker, Portfolio Overview, Advanced Portfolio Insights), add a dedicated **Insights tab**.  
+- Each Insights tab contains interpretive summaries only for the metrics in that mode.  
+- Summaries should be concise (1–2 sentences per metric).  
+- Use plain language with light technical jargon.  
+- Keep styling consistent: muted secondary text, small font, aligned with Quantify branding.  
+- This ensures users can view both raw analytics and explanations **within the same mode**, without switching back and forth.
+
+---
+
+### Glossary + Layman Summaries
+
+#### Single Ticker Insights
+- **Mean Daily Return (%)** → Average daily gain/loss. Positive means growth, negative means decline.  
+- **Annual Volatility (%)** → How much the stock price swings in a year. Higher = riskier.  
+- **Skewness** → Shows if returns lean more to gains or losses. Negative skew = more downside risk.  
+- **Excess Kurtosis** → Measures “fat tails.” High kurtosis = more extreme ups/downs than normal.  
+- **Total Return (%)** → Overall growth over the period.  
+- **Return OBS** → Number of return observations used in the analysis.  
+- **Max/Min/Last Close** → Obvious values, no explanation needed.  
+
+#### Portfolio Overview Insights
+- **Mean Daily Return (%)** → Average daily portfolio gain/loss.  
+- **Portfolio Annual Volatility (%)** → How much the portfolio fluctuates yearly. Lower volatility = smoother ride.  
+- **Sharpe Ratio (Daily)** → Risk‑adjusted return. >1 is strong, <1 means returns don’t justify the risk.  
+
+#### Advanced Portfolio Insights
+- **Max Drawdown (%)** → Worst peak‑to‑trough loss. Shows how much you could lose in a downturn.  
+- **Cumulative Return (%)** → Total portfolio growth over time. Positive = wealth increase.  
+- **Sortino Ratio** → Like Sharpe but focuses only on downside risk. >1 is good, <1 means weak risk‑adjusted returns.  
+- **Beta vs SPY** → Sensitivity to the market. ~1 = moves with market, <1 = less volatile, >1 = more volatile.  
+
+---
+
+### Agent Instruction
+Refer to AGENTS.md and Implement Phase 8:  
+- Add a dedicated **Insights tab** for each mode (Single Ticker, Portfolio Overview, Advanced Portfolio Insights).  
+- Populate each tab with interpretive summaries relevant to that mode only.  
+- Keep explanations concise and layman‑friendly.  
+- Use muted secondary text styling to avoid clutter.  
+- Ensure consistency across all modes.
+---
+
  **Success criteria checklist**
 - End-to-end flow works: data fetch → clean → analyze → visualize → export  
 - No console errors in frontend or backend

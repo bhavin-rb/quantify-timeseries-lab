@@ -604,6 +604,117 @@ button {
   box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 35%, transparent);
 }
 
+/* ---------- Sub-tabs (Analysis / Insights) ---------- */
+
+.subtab-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 26px;
+}
+
+.subtabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+}
+
+.subtab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.subtab-btn:hover {
+  color: var(--text);
+}
+
+.subtab-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+/* ---------- Insights panel ---------- */
+
+.insights-panel {
+  padding: 6px;
+}
+
+.insights-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: var(--text);
+}
+
+.insights-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+}
+
+.insight-icon {
+  color: var(--primary-strong);
+  flex: none;
+  margin-top: 3px;
+}
+
+.insight-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.insight-metric {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.insight-metric strong {
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.insight-value {
+  color: var(--primary-strong);
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.insight-explanation {
+  color: var(--text-muted);
+  font-size: 0.87rem;
+  line-height: 1.5;
+}
+
 .controls {
   display: flex;
   gap: 16px;

@@ -16,6 +16,8 @@ import {
 import { apiGet, downloadCsv, formatNum } from "../api.js";
 import ChartTooltip from "../components/ChartTooltip.jsx";
 import { RollingChart } from "../components/QqPlot.jsx";
+import SubTabs from "../components/SubTabs.jsx";
+import InsightsPanel from "../components/InsightsPanel.jsx";
 import { FiAlertTriangle, FiDownload, FiRotateCcw } from "react-icons/fi";
 
 const TICKER_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6", "#e879f9", "#94a3b8"];
@@ -142,6 +144,7 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
+  const [view, setView] = useState("analysis");
 
   const run = useCallback(async () => {
     setLoading(true);
@@ -167,6 +170,15 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
       }))
     : null;
 
+  const advancedInsights = data
+    ? [
+        { metric: "Max Drawdown (%)", explanation: "Worst peak-to-trough loss. Shows how much you could lose in a downturn.", value: `${data.summary.maxDrawdown.toFixed(2)}%` },
+        { metric: "Cumulative Return (%)", explanation: "Total portfolio growth over time. Positive = wealth increase.", value: `${data.summary.cumulativeReturn.toFixed(2)}%` },
+        { metric: "Sortino Ratio", explanation: "Like Sharpe but focuses only on downside risk. >1 is good, <1 means weak risk-adjusted returns.", value: formatNum(data.summary.sortino, 3) },
+        { metric: `Beta vs ${data.benchmark}`, explanation: "Sensitivity to the market. ~1 = moves with market, <1 = less volatile, >1 = more volatile.", value: formatNum(data.summary.beta, 3) },
+      ]
+    : null;
+
   return (
     <>
       <div className="controls" style={{ justifyContent: "center" }}>
@@ -183,6 +195,21 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
 
       {data && (
         <>
+          <div className="subtab-row">
+            <SubTabs view={view} setView={setView} />
+          </div>
+
+          {view === "insights" && (
+            <div className="card">
+              <InsightsPanel
+                title={`Advanced Portfolio Insights — ${data.tickers.join(", ")}`}
+                items={advancedInsights}
+              />
+            </div>
+          )}
+
+          {view === "analysis" && (
+          <>
           <div className="section-title">
             <h2>Advanced Portfolio Insights — {data.tickers.join(", ")}</h2>
             <span className="hint">
@@ -261,6 +288,8 @@ export default function AdvancedInsightsTab({ tickers, startDate, endDate, windo
               <FiDownload size={16} /> Export insights CSV
             </button>
           </div>
+          </>
+          )}
         </>
       )}
 

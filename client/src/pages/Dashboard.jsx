@@ -7,6 +7,8 @@ import CorrelationHeatmap from "../components/CorrelationHeatmap.jsx";
 import DataPreview from "../components/DataPreview.jsx";
 import TickerSearch from "../components/TickerSearch.jsx";
 import AdvancedInsightsTab from "./AdvancedInsightsTab.jsx";
+import SubTabs from "../components/SubTabs.jsx";
+import InsightsPanel from "../components/InsightsPanel.jsx";
 import { FiAlertTriangle, FiDownload, FiRotateCcw, FiTrendingUp, FiLink, FiEye } from "react-icons/fi";
 
 const TICKER_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6", "#e879f9", "#94a3b8"];
@@ -39,6 +41,7 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [eda, setEda] = useState(null);
+  const [view, setView] = useState("analysis");
 
   const run = useCallback(async () => {
     setLoading(true);
@@ -58,6 +61,17 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
   }, [ticker, startDate, endDate, window]);
 
   const summary = eda?.summary;
+
+  const singleTickerInsights = summary
+    ? [
+        { metric: "Mean Daily Return (%)", explanation: "Average daily gain/loss. Positive means growth, negative means decline.", value: formatPct(summary.meanReturn) },
+        { metric: "Annual Volatility (%)", explanation: "How much the stock price swings in a year. Higher = riskier.", value: formatPct(summary.volatility) },
+        { metric: "Skewness", explanation: "Shows if returns lean more to gains or losses. Negative skew = more downside risk.", value: formatNum(summary.skewness, 3) },
+        { metric: "Excess Kurtosis", explanation: "Measures “fat tails.” High kurtosis = more extreme ups/downs than normal.", value: formatNum(summary.kurtosis, 3) },
+        { metric: "Total Return (%)", explanation: "Overall growth over the period.", value: formatPct(summary.totalReturnPct / 100, 2) },
+        { metric: "Return OBS", explanation: "Number of return observations used in the analysis.", value: summary.returnObservations },
+      ]
+    : [];
 
   return (
     <>
@@ -102,6 +116,21 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
 
       {eda && summary && (
         <>
+          <div className="subtab-row">
+            <SubTabs view={view} setView={setView} />
+          </div>
+
+          {view === "insights" && (
+            <div className="card">
+              <InsightsPanel
+                title={`Single Ticker Insights — ${summary.ticker}`}
+                items={singleTickerInsights}
+              />
+            </div>
+          )}
+
+          {view === "analysis" && (
+          <>
           <div className="section-title">
             <h2>Summary statistics — {summary.ticker}</h2>
             <span className="hint">
@@ -174,6 +203,8 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
               />
             </div>
           </div>
+          </>
+          )}
         </>
       )}
 
@@ -192,6 +223,7 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
+  const [view, setView] = useState("analysis");
 
   const run = useCallback(async () => {
     setLoading(true);
@@ -216,6 +248,14 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
         name: t,
         color: TICKER_COLORS[i % TICKER_COLORS.length],
       }))
+    : [];
+
+  const portfolioInsights = data
+    ? [
+        { metric: "Mean Daily Return (%)", explanation: "Average daily portfolio gain/loss.", value: formatPct(data.portfolioStats.meanReturn) },
+        { metric: "Portfolio Annual Volatility (%)", explanation: "How much the portfolio fluctuates yearly. Lower volatility = smoother ride.", value: formatPct(data.portfolioStats.volatility) },
+        { metric: "Sharpe Ratio (Daily)", explanation: "Risk-adjusted return. >1 is strong, <1 means returns don’t justify the risk.", value: formatNum(data.portfolioStats.sharpe, 3) },
+      ]
     : [];
 
   return (
@@ -260,6 +300,21 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
 
       {data && (
         <>
+          <div className="subtab-row">
+            <SubTabs view={view} setView={setView} />
+          </div>
+
+          {view === "insights" && (
+            <div className="card">
+              <InsightsPanel
+                title={`Portfolio Overview Insights — ${data.tickers.join(", ")}`}
+                items={portfolioInsights}
+              />
+            </div>
+          )}
+
+          {view === "analysis" && (
+          <>
           <div className="section-title">
             <h2>Portfolio overview — {data.tickers.join(", ")}</h2>
             <span className="hint">
@@ -332,6 +387,8 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
             </div>
           )}
 
+          </>
+          )}
         </>
       )}
 
