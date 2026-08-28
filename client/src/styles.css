@@ -300,6 +300,7 @@ button {
   color: transparent;
   animation: shimmer 6s linear infinite;
   background-size: 200% auto;
+  padding-right: 0.06em;
 }
 
 @keyframes shimmer {
@@ -472,32 +473,55 @@ button {
   font-size: clamp(1.8rem, 3.5vw, 2.6rem);
   font-weight: 800;
   letter-spacing: -0.02em;
-  margin-bottom: 18px;
+  margin-bottom: 22px;
+}
+
+.about .about-text {
+  max-width: 100%;
 }
 
 .about p {
   color: var(--text-muted);
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   font-size: 1.02rem;
+  line-height: 1.75;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+}
+
+.about p:last-of-type {
+  margin-bottom: 0;
+}
+
+.about p code {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 0.92em;
+  color: var(--primary-strong);
+  white-space: nowrap;
 }
 
 .about-features {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
-  margin-top: 24px;
+  margin-top: 30px;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: 12px;
+  padding: 14px 16px;
   border-radius: 12px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   font-size: 0.92rem;
   font-weight: 500;
+  line-height: 1.4;
   transition: transform 0.2s, border-color var(--transition);
 }
 
@@ -507,14 +531,15 @@ button {
 }
 
 .feature-item .feature-icon {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   flex: none;
-  border-radius: 9px;
+  border-radius: 10px;
   display: grid;
   place-items: center;
   background: color-mix(in srgb, var(--primary) 16%, transparent);
   color: var(--primary-strong);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 /* ---------- Reveal on scroll ---------- */
@@ -529,6 +554,21 @@ button {
 .reveal.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Directional slide-in for the About image (from the side, outside-in) */
+.about-image-wrap.reveal {
+  transform: translateX(-48px);
+}
+
+.about-image-wrap.reveal.visible {
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-image-wrap.reveal {
+    transform: none;
+  }
 }
 
 /* ---------- Footer ---------- */
@@ -1142,6 +1182,10 @@ table.data-table {
     grid-template-columns: 1fr;
     gap: 36px;
   }
+  .about p {
+    text-align: left;
+    hyphens: manual;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1162,6 +1206,19 @@ table.data-table {
   }
   .about-features {
     grid-template-columns: 1fr;
+  }
+  .about {
+    padding: 70px 6vw;
+  }
+  .about p {
+    text-align: left;
+    hyphens: manual;
+  }
+  .about-image-wrap img {
+    min-height: 240px;
+  }
+  .about-image-wrap.reveal {
+    transform: translateX(-28px);
   }
   .hero {
     min-height: 86vh;

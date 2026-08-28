@@ -16,7 +16,7 @@ export default function About() {
   return (
     <section className="about" id="about" ref={ref}>
       <div className="about-grid">
-        <div className="about-image-wrap reveal">
+        <div className="about-image-wrap reveal reveal-left">
           <img src="/images/about_image.jpg" alt="About TimeSeries Lab" loading="lazy" />
         </div>
         <div className="reveal">
@@ -33,6 +33,15 @@ export default function About() {
             Q-Q plots, and rolling windows that update as you drag a slider.
             For portfolios, it computes the full correlation matrix with an
             interactive heatmap and rolling pair correlations.
+          </p>
+          <p>
+            And now, with dedicated Insights tabs, TimeSeries Lab goes beyond raw
+            numbers. Each mode — Single Ticker, Portfolio Overview, and Advanced
+            Insights — includes plain-language explanations of the metrics, so you
+            can understand what values like Sharpe, Sortino, or Beta really mean
+            for your portfolio. This makes the dashboard useful not only for
+            analysts, but for anyone who wants clear, actionable interpretations
+            right alongside the data — no finance degree required.
           </p>
           <div className="about-features">
             {FEATURES.map((f) => (
