@@ -198,6 +198,35 @@ Refer to AGENTS.md and Implement Phase 8:
 - Ensure consistency across all modes.
 ---
 
+## Phase 9 - Risk Management Tab (Hybrid Stop-Loss & Target)
+
+- Add a new tab labeled "Risk Management" in the dashboard.
+  - **Navigation logic**:
+    - At initial launch, dashboard shows only *Single Ticker* and *Portfolio* tabs (unchanged).
+    - When *Single Ticker* is active → Tabs: Single Ticker + Risk Management + Portfolio.
+    - When *Portfolio* is active → Tabs: Single Ticker + Portfolio + Advanced Insights + Risk Management.
+    - Reset button clears everything (unchanged).
+- Inside this tab:
+  - **Hybrid input fields per ticker**:
+    - Stop-Loss: auto-calculated default (e.g., 10% below current price or 1× volatility), user can override with % or absolute price.
+    - Target: auto-calculated default (e.g., 20% above current price or 2× stop-loss distance), user can override with % or absolute price.
+    - Toggle option to switch between % and absolute price entry.
+  - **Per‑ticker summary cards**:
+    - One card per ticker (e.g., 4 tickers → 4 cards).
+    - Each card shows Stop-Loss 🔴, Target 🟢, and Risk/Reward ratio.
+    - Desktop: cards arranged in grid (2×2 for 4 tickers).
+    - Mobile: cards stack vertically for readability.
+  - **Chart overlays**:
+    - Red horizontal line for Stop-Loss.
+    - Green horizontal line for Target.
+    - Annotations: "Sell if price ≤ Stop-Loss" / "Take profit if price ≥ Target."
+  - **Responsive design**:
+    - Desktop: cards + charts with overlays.
+    - Mobile: compact stacked cards view showing Stop-Loss 🔴, Target 🟢, and Risk/Reward ratio + Charts with overlays.
+    
+- Default dashboard (Phases 1–8) remains unchanged, ensuring seamless UI/UX.
+- Do not change any other functionality.
+---
  **Success criteria checklist**
 - End-to-end flow works: data fetch → clean → analyze → visualize → export  
 - No console errors in frontend or backend
