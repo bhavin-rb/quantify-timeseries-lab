@@ -37,10 +37,10 @@ export default function Hero({ navigate }) {
         </div>
         <div className="hero-stats">
           <div className="stat-chip">
-            <strong>6+</strong> EDA metrics
+            <strong>10+</strong> EDA metrics
           </div>
           <div className="stat-chip">
-            <strong>4</strong> interactive charts
+            <strong>14</strong> interactive charts
           </div>
           <div className="stat-chip">
             <strong>1-click</strong> CSV export
