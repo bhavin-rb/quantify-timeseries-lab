@@ -12,6 +12,7 @@ import dataRouter from "./routes/data.js";
 import edaRouter from "./routes/eda.js";
 import portfolioRouter from "./routes/portfolio.js";
 import insightsRouter from "./routes/insights.js";
+import riskRouter from "./routes/risk.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -31,6 +32,7 @@ app.use("/api/data", dataRouter);
 app.use("/api/eda", edaRouter);
 app.use("/api/portfolio", portfolioRouter);
 app.use("/api/insights", insightsRouter);
+app.use("/api/risk", riskRouter);
 
 app.use("/api", (req, res) => {
   res.status(404).json({ error: "Endpoint not found" });

@@ -7,9 +7,10 @@ import CorrelationHeatmap from "../components/CorrelationHeatmap.jsx";
 import DataPreview from "../components/DataPreview.jsx";
 import TickerSearch from "../components/TickerSearch.jsx";
 import AdvancedInsightsTab from "./AdvancedInsightsTab.jsx";
+import RiskManagementTab from "./RiskManagementTab.jsx";
 import SubTabs from "../components/SubTabs.jsx";
 import InsightsPanel from "../components/InsightsPanel.jsx";
-import { FiAlertTriangle, FiDownload, FiRotateCcw, FiTrendingUp, FiLink, FiEye } from "react-icons/fi";
+import { FiAlertTriangle, FiDownload, FiRotateCcw, FiTrendingUp, FiLink, FiEye, FiShield } from "react-icons/fi";
 
 const TICKER_COLORS = ["#0ea5e9", "#8b5cf6", "#10b981", "#f59e0b", "#f43f5e", "#14b8a6", "#e879f9", "#94a3b8"];
 
@@ -35,7 +36,7 @@ function SummaryGrid({ items }) {
   );
 }
 
-function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow, resetAll }) {
+function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow, resetAll, onAnalyzed }) {
   const ticker = tickers.split(",")[0]?.trim() || "";
   const setTicker = (v) => setTickers(v);
   const [loading, setLoading] = useState(false);
@@ -52,13 +53,14 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
       if (endDate) params.set("endDate", endDate);
       const data = await apiGet(`/eda?${params.toString()}`);
       setEda(data);
+      onAnalyzed?.();
     } catch (e) {
       setError(e.message);
       setEda(null);
     } finally {
       setLoading(false);
     }
-  }, [ticker, startDate, endDate, window]);
+  }, [ticker, startDate, endDate, window, onAnalyzed]);
 
   const summary = eda?.summary;
 
@@ -219,7 +221,7 @@ function SingleTickerTab({ tickers, setTickers, startDate, setStartDate, endDate
   );
 }
 
-function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow, resetAll }) {
+function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, setEndDate, window, setWindow, resetAll, onAnalyzed }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
@@ -234,13 +236,14 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
       if (endDate) params.set("endDate", endDate);
       const result = await apiGet(`/portfolio?${params.toString()}`);
       setData(result);
+      onAnalyzed?.();
     } catch (e) {
       setError(e.message);
       setData(null);
     } finally {
       setLoading(false);
     }
-  }, [tickers, startDate, endDate, window]);
+  }, [tickers, startDate, endDate, window, onAnalyzed]);
 
   const priceSeries = data
     ? data.tickers.map((t, i) => ({
@@ -405,20 +408,45 @@ function PortfolioTab({ tickers, setTickers, startDate, setStartDate, endDate, s
 
 export default function Dashboard() {
   const [tab, setTab] = useState("single");
+  const [riskFrom, setRiskFrom] = useState("single");
+  const [analyzedSingle, setAnalyzedSingle] = useState(false);
+  const [analyzedPortfolio, setAnalyzedPortfolio] = useState(false);
   const [tickers, setTickers] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [window, setWindow] = useState(30);
   const [resetKey, setResetKey] = useState(0);
 
+  const handleSingleAnalyzed = useCallback(() => setAnalyzedSingle(true), []);
+  const handlePortfolioAnalyzed = useCallback(() => setAnalyzedPortfolio(true), []);
+
+  const openRisk = useCallback((from) => {
+    setRiskFrom(from);
+    setTab("riskmgmt");
+  }, []);
+
   const resetAll = useCallback(() => {
     setTickers("");
     setStartDate("");
     setEndDate("");
     setWindow(30);
+    setAnalyzedSingle(false);
+    setAnalyzedPortfolio(false);
+    setRiskFrom("single");
     setResetKey((k) => k + 1);
-    setTab((t) => t === "insights" ? "portfolio" : t);
+    setTab((t) => (t === "insights" || t === "riskmgmt" ? "portfolio" : t));
   }, []);
+
+  const riskInMiddle =
+    tab === "single" || (tab === "riskmgmt" && riskFrom === "single");
+  const riskInEnd =
+    tab === "portfolio" || (tab === "riskmgmt" && riskFrom === "portfolio");
+  const showRiskMiddle =
+    riskInMiddle && (tab === "riskmgmt" || analyzedSingle);
+  const showRiskEnd =
+    riskInEnd && (tab === "riskmgmt" || analyzedPortfolio);
+  const showAdvanced =
+    tab === "portfolio" || (tab === "riskmgmt" && riskFrom === "portfolio");
 
   return (
     <main className="dashboard">
@@ -434,18 +462,34 @@ export default function Dashboard() {
         >
           <FiTrendingUp size={16} /> Single Ticker
         </button>
+        {showRiskMiddle && (
+          <button
+            className={`tab-btn ${tab === "riskmgmt" ? "active" : ""}`}
+            onClick={() => openRisk("single")}
+          >
+            <FiShield size={16} /> Risk Management
+          </button>
+        )}
         <button
           className={`tab-btn ${tab === "portfolio" ? "active" : ""}`}
           onClick={() => setTab("portfolio")}
         >
           <FiLink size={16} /> Portfolio
         </button>
-        {tab === "portfolio" && (
+        {showAdvanced && (
           <button
             className={`tab-btn ${tab === "insights" ? "active" : ""}`}
             onClick={() => setTab("insights")}
           >
             <FiEye size={16} /> Advanced Insights
+          </button>
+        )}
+        {showRiskEnd && (
+          <button
+            className={`tab-btn ${tab === "riskmgmt" ? "active" : ""}`}
+            onClick={() => openRisk("portfolio")}
+          >
+            <FiShield size={16} /> Risk Management
           </button>
         )}
       </div>
@@ -458,6 +502,7 @@ export default function Dashboard() {
           endDate={endDate} setEndDate={setEndDate}
           window={window} setWindow={setWindow}
           resetAll={resetAll}
+          onAnalyzed={handleSingleAnalyzed}
         />
       )}
       {tab === "portfolio" && (
@@ -468,6 +513,7 @@ export default function Dashboard() {
           endDate={endDate} setEndDate={setEndDate}
           window={window} setWindow={setWindow}
           resetAll={resetAll}
+          onAnalyzed={handlePortfolioAnalyzed}
         />
       )}
       {tab === "insights" && (
@@ -477,6 +523,15 @@ export default function Dashboard() {
           startDate={startDate}
           endDate={endDate}
           window={window}
+          resetAll={resetAll}
+        />
+      )}
+      {tab === "riskmgmt" && (
+        <RiskManagementTab
+          key={`risk-${resetKey}`}
+          tickers={tickers}
+          startDate={startDate}
+          endDate={endDate}
           resetAll={resetAll}
         />
       )}
