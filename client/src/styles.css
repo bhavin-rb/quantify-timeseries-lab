@@ -822,6 +822,24 @@ button {
   margin-top: 4px;
 }
 
+.risk-single {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.risk-single .card {
+  width: 100%;
+}
+
+.risk-chart-card .risk-chart {
+  height: 380px;
+}
+
+.risk-line-label {
+  font-family: inherit;
+}
+
 .risk-card .risk-header {
   display: flex;
   align-items: baseline;

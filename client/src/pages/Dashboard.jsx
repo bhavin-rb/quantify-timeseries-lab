@@ -533,6 +533,9 @@ export default function Dashboard() {
           startDate={startDate}
           endDate={endDate}
           resetAll={resetAll}
+          mode={riskFrom}
+          analyzedSingle={analyzedSingle}
+          analyzedPortfolio={analyzedPortfolio}
         />
       )}
     </main>

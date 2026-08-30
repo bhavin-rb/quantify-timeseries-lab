@@ -29,6 +29,34 @@ function Loading({ text }) {
   );
 }
 
+// Places the annotation text directly on top of the reference line, centered
+// horizontally. `viewBox.y` is the pixel position of the line, so the label
+// tracks the line automatically when Stop-Loss / Target are overridden.
+function LineAnnotation({ viewBox, text, color }) {
+  if (!viewBox) return null;
+  const cx = viewBox.x + viewBox.width / 2;
+  return (
+    <text
+      className="risk-line-label"
+      x={cx}
+      y={viewBox.y}
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={10.5}
+      fontWeight={700}
+      letterSpacing={0.2}
+      fill={color}
+      stroke="var(--bg-card)"
+      strokeWidth={5}
+      strokeLinejoin="round"
+      paintOrder="stroke"
+      style={{ userSelect: "none", pointerEvents: "none" }}
+    >
+      {text}
+    </text>
+  );
+}
+
 function RiskChart({ series, stopLoss, target }) {
   const prices = series.map((d) => d.close);
   let lo = Math.min(...prices, stopLoss, target);
@@ -63,14 +91,14 @@ function RiskChart({ series, stopLoss, target }) {
             stroke="var(--danger)"
             strokeDasharray="6 4"
             strokeWidth={1.5}
-            label={{ value: `Sell if price ≤ ${formatUsd(stopLoss)}`, position: "left", fill: "var(--danger)", fontSize: 11 }}
+            label={<LineAnnotation text={`Sell if price ≤ ${formatUsd(stopLoss)}`} color="var(--danger)" />}
           />
           <ReferenceLine
             y={target}
             stroke="var(--success)"
             strokeDasharray="6 4"
             strokeWidth={1.5}
-            label={{ value: `Take profit if price ≥ ${formatUsd(target)}`, position: "right", fill: "var(--success)", fontSize: 11 }}
+            label={<LineAnnotation text={`Take profit if price ≥ ${formatUsd(target)}`} color="var(--success)" />}
           />
           <Line
             type="monotone"
@@ -117,13 +145,101 @@ function computeLevels(item, input) {
   return { stopPrice, targetPrice, riskReward };
 }
 
-export default function RiskManagementTab({ tickers, startDate, endDate, resetAll }) {
+function RiskCardBody({ item, input, levels, onUpdate, onToggleMode }) {
+  return (
+    <>
+      <div className="risk-header">
+        <span className="risk-ticker">{item.ticker}</span>
+        <span className="risk-meta">
+          Last {formatUsd(item.latestPrice)} · Ann. vol {formatPct(item.volatility)}
+        </span>
+      </div>
+
+      <div className="risk-controls">
+        <div className="risk-field">
+          <label>Stop-Loss 🔴</label>
+          <div className="risk-input-wrap">
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={input?.stop ?? ""}
+              placeholder={formatUsd(item.stopLossPrice)}
+              onChange={(e) => onUpdate(item.ticker, "stop", e.target.value)}
+            />
+            {input?.mode === "pct" && <span className="risk-suffix">%</span>}
+          </div>
+        </div>
+
+        <div className="risk-toggle" role="group" aria-label="Input mode">
+          <button
+            className={`${input?.mode === "pct" ? "active" : ""}`}
+            onClick={onToggleMode}
+            aria-pressed={input?.mode === "pct"}
+          >
+            %
+          </button>
+          <button
+            className={`${input?.mode === "price" ? "active" : ""}`}
+            onClick={onToggleMode}
+            aria-pressed={input?.mode === "price"}
+          >
+            $
+          </button>
+        </div>
+
+        <div className="risk-field">
+          <label>Target 🟢</label>
+          <div className="risk-input-wrap">
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={input?.target ?? ""}
+              placeholder={formatUsd(item.targetPrice)}
+              onChange={(e) => onUpdate(item.ticker, "target", e.target.value)}
+            />
+            {input?.mode === "pct" && <span className="risk-suffix">%</span>}
+          </div>
+        </div>
+      </div>
+
+      <div className="risk-summary">
+        <span className="risk-chip risk-stop">
+          <span className="risk-dot stop" /> Stop-Loss {formatUsd(levels.stopPrice)}
+        </span>
+        <span className="risk-chip risk-target">
+          <span className="risk-dot target" /> Target {formatUsd(levels.targetPrice)}
+        </span>
+        <span className="risk-chip risk-rr">
+          Risk/Reward {levels.riskReward != null ? `1 : ${levels.riskReward.toFixed(2)}` : "—"}
+        </span>
+      </div>
+    </>
+  );
+}
+
+export default function RiskManagementTab({
+  tickers,
+  startDate,
+  endDate,
+  resetAll,
+  mode = "single",
+  analyzedSingle = false,
+  analyzedPortfolio = false,
+}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
   const [inputs, setInputs] = useState({});
 
   const tickerList = parseTickers(tickers);
+  const isSingle = mode === "single";
+  // Sync with the active mode: Single Ticker mode only manages the first ticker,
+  // Portfolio mode manages every ticker. Risk Management never shows data from a
+  // mode that has not been analyzed in the dashboard yet.
+  const activeTickers = isSingle ? tickerList.slice(0, 1) : tickerList;
+  const canRun = (isSingle ? analyzedSingle : analyzedPortfolio) && activeTickers.length > 0;
 
   const run = useCallback(
     async (list) => {
@@ -156,9 +272,16 @@ export default function RiskManagementTab({ tickers, startDate, endDate, resetAl
   );
 
   useEffect(() => {
-    run(tickerList);
+    if (!canRun) {
+      setData(null);
+      setInputs({});
+      setError("");
+      setLoading(false);
+      return;
+    }
+    run(activeTickers);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tickers, startDate, endDate]);
+  }, [activeTickers.join(","), startDate, endDate, canRun]);
 
   const update = useCallback((ticker, field, value) => {
     setInputs((prev) => ({ ...prev, [ticker]: { ...prev[ticker], [field]: value } }));
@@ -193,6 +316,22 @@ export default function RiskManagementTab({ tickers, startDate, endDate, resetAl
     [update]
   );
 
+  const renderBodyRow = (item) => {
+    const input = inputs[item.ticker];
+    const levels = computeLevels(item, input);
+    return (
+      <RiskCardBody
+        item={item}
+        input={input}
+        levels={levels}
+        onUpdate={update}
+        onToggleMode={() => toggleMode(item, input)}
+      />
+    );
+  };
+
+  const singleLayout = data && data.items.length === 1;
+
   return (
     <>
       <div className="controls" style={{ justifyContent: "center" }}>
@@ -209,96 +348,50 @@ export default function RiskManagementTab({ tickers, startDate, endDate, resetAl
       {loading && <Loading text="Computing stop-loss and target levels…" />}
 
       {data && data.items.length > 0 && (
-        <div className="grid grid-2 risk-grid">
-          {data.items.map((item) => {
+        singleLayout ? (
+          (() => {
+            const item = data.items[0];
             const input = inputs[item.ticker];
-            const { stopPrice, targetPrice, riskReward } = computeLevels(item, input);
+            const levels = computeLevels(item, input);
             return (
-              <div className="card risk-card" key={item.ticker}>
-                <div className="risk-header">
-                  <span className="risk-ticker">{item.ticker}</span>
-                  <span className="risk-meta">
-                    Last {formatUsd(item.latestPrice)} · Ann. vol {formatPct(item.volatility)}
-                  </span>
+              <div className="risk-single">
+                <div className="card risk-card">{renderBodyRow(item)}</div>
+                <div className="card risk-chart-card">
+                  <RiskChart
+                    series={item.series}
+                    stopLoss={levels.stopPrice}
+                    target={levels.targetPrice}
+                  />
                 </div>
-
-                <div className="risk-controls">
-                  <div className="risk-field">
-                    <label>Stop-Loss 🔴</label>
-                    <div className="risk-input-wrap">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={input?.stop ?? ""}
-                        placeholder={formatUsd(item.stopLossPrice)}
-                        onChange={(e) => update(item.ticker, "stop", e.target.value)}
-                      />
-                      {input?.mode === "pct" && <span className="risk-suffix">%</span>}
-                    </div>
-                  </div>
-
-                  <div className="risk-toggle" role="group" aria-label="Input mode">
-                    <button
-                      className={`${input?.mode === "pct" ? "active" : ""}`}
-                      onClick={() => toggleMode(item, input)}
-                      aria-pressed={input?.mode === "pct"}
-                    >
-                      %
-                    </button>
-                    <button
-                      className={`${input?.mode === "price" ? "active" : ""}`}
-                      onClick={() => toggleMode(item, input)}
-                      aria-pressed={input?.mode === "price"}
-                    >
-                      $
-                    </button>
-                  </div>
-
-                  <div className="risk-field">
-                    <label>Target 🟢</label>
-                    <div className="risk-input-wrap">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={input?.target ?? ""}
-                        placeholder={formatUsd(item.targetPrice)}
-                        onChange={(e) => update(item.ticker, "target", e.target.value)}
-                      />
-                      {input?.mode === "pct" && <span className="risk-suffix">%</span>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="risk-summary">
-                  <span className="risk-chip risk-stop">
-                    <span className="risk-dot stop" /> Stop-Loss {formatUsd(stopPrice)}
-                  </span>
-                  <span className="risk-chip risk-target">
-                    <span className="risk-dot target" /> Target {formatUsd(targetPrice)}
-                  </span>
-                  <span className="risk-chip risk-rr">
-                    Risk/Reward {riskReward != null ? `1 : ${riskReward.toFixed(2)}` : "—"}
-                  </span>
-                </div>
-
-                <RiskChart
-                  series={item.series}
-                  stopLoss={stopPrice}
-                  target={targetPrice}
-                />
               </div>
             );
-          })}
-        </div>
+          })()
+        ) : (
+          <div className="grid grid-2 risk-grid">
+            {data.items.map((item) => {
+              const input = inputs[item.ticker];
+              const levels = computeLevels(item, input);
+              return (
+                <div className="card risk-card" key={item.ticker}>
+                  {renderBodyRow(item)}
+                  <RiskChart
+                    series={item.series}
+                    stopLoss={levels.stopPrice}
+                    target={levels.targetPrice}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )
       )}
 
       {!data && !loading && !error && (
         <div className="card" style={{ textAlign: "center", padding: 40 }}>
           <p className="sub" style={{ fontSize: "1rem" }}>
-            No tickers to manage. Run an analysis in the <strong>Single Ticker</strong> or{" "}
-            <strong>Portfolio</strong> tab first.
+            No <strong>{isSingle ? "single ticker" : "portfolio"}</strong> to manage. Run an analysis
+            in the <strong>{isSingle ? "Single Ticker" : "Portfolio"}</strong> tab first, then return
+            here to configure stop-loss &amp; target levels.
           </p>
         </div>
       )}
