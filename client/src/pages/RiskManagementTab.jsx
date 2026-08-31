@@ -219,6 +219,57 @@ function RiskCardBody({ item, input, levels, onUpdate, onToggleMode }) {
   );
 }
 
+function RiskExplanation({ item, levels }) {
+  const { latestPrice, ticker } = item;
+  const { stopPrice, targetPrice, riskReward } = levels;
+
+  return (
+    <details className="risk-explanation">
+      <summary>What do these levels mean for {ticker}?</summary>
+      <div className="risk-explanation-body">
+        <p>
+          The current price of <strong>{ticker}</strong> is{" "}
+          <strong>{formatUsd(latestPrice)}</strong>.
+        </p>
+
+        <div className="risk-explanation-item">
+          <span className="risk-explanation-dot stop" />
+          <p>
+            <strong>Stop-Loss ({formatUsd(stopPrice)}):</strong> If price falls to{" "}
+            {formatUsd(stopPrice)} or lower, you should sell to avoid bigger losses.
+          </p>
+        </div>
+
+        <div className="risk-explanation-item">
+          <span className="risk-explanation-dot target" />
+          <p>
+            <strong>Target ({formatUsd(targetPrice)}):</strong> If price rises to{" "}
+            {formatUsd(targetPrice)} or higher, you can take profit and lock in gains.
+          </p>
+        </div>
+
+        <p>
+          <strong>Risk / Reward:</strong>{" "}
+          {riskReward != null
+            ? `For every $1 you risk, you aim to make $${riskReward.toFixed(2)}.`
+            : "The target is currently set below your entry price — adjust your levels to get a meaningful ratio."}
+        </p>
+
+        <p>
+          <strong>Hold / Sell:</strong> Hold as long as price stays between the
+          stop-loss and target. Sell if it hits either boundary.
+        </p>
+
+        <p>
+          <strong>Short selling:</strong> For short positions, reverse the logic —
+          profit if price falls below the stop-loss, cut losses if it rises above
+          the target.
+        </p>
+      </div>
+    </details>
+  );
+}
+
 export default function RiskManagementTab({
   tickers,
   startDate,
@@ -330,6 +381,12 @@ export default function RiskManagementTab({
     );
   };
 
+  const renderExplanation = (item) => {
+    const input = inputs[item.ticker];
+    const levels = computeLevels(item, input);
+    return <RiskExplanation item={item} levels={levels} />;
+  };
+
   const singleLayout = data && data.items.length === 1;
 
   return (
@@ -362,6 +419,7 @@ export default function RiskManagementTab({
                     stopLoss={levels.stopPrice}
                     target={levels.targetPrice}
                   />
+                  {renderExplanation(item)}
                 </div>
               </div>
             );
@@ -379,6 +437,7 @@ export default function RiskManagementTab({
                     stopLoss={levels.stopPrice}
                     target={levels.targetPrice}
                   />
+                  {renderExplanation(item)}
                 </div>
               );
             })}

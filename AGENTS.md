@@ -226,6 +226,27 @@ Refer to AGENTS.md and Implement Phase 8:
     
 - Default dashboard (Phases 1–8) remains unchanged, ensuring seamless UI/UX.
 - Do not change any other functionality.
+
+## Phase 10 – Collapsible Explanation Tab (Plain-Language Guidance)
+
+- Add a collapsible "Explanation" section inside the Risk Management tab.
+- **Dynamic values**:
+  - Use live values for current price, stop-loss, target, and risk/reward ratio.
+  - Explanations update automatically when user overrides inputs or toggles %/$.
+- **Plain-language guidance** (non-technical, user-friendly):
+  - Explain what the stop-loss means: "If price falls to $X or lower, you should sell to avoid bigger losses."
+  - Explain what the target means: "If price rises to $Y or higher, you can take profit and lock in gains."
+  - Explain the risk/reward ratio in simple terms: "For every $1 you risk, you aim to make $Z."
+  - Provide hold/sell logic: "Hold as long as price stays between stop-loss and target."
+  - Include short-sell explanation: "For short selling, reverse the logic — profit if price falls below stop-loss, cut losses if it rises above target."
+- **UI behavior**:
+  - Collapsible by default, expandable on click/tap.
+  - Place explanation directly under each per-ticker card and chart.
+  - Ensure responsive design: collapsible section works smoothly on both desktop and mobile.
+- **Constraints**:
+  - Do not introduce technical jargon; keep explanations simple and intuitive.
+  - Do not alter existing Risk Management functionality (Phase 9).
+
 ---
  **Success criteria checklist**
 - End-to-end flow works: data fetch → clean → analyze → visualize → export  
