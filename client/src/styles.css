@@ -14,7 +14,7 @@
   --warn: #f59e0b;
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
   --radius: 14px;
-  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html[data-theme="light"] {
@@ -53,6 +53,8 @@ html[data-theme="light"] .hero-badge {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  transition: background var(--transition), color var(--transition),
+    border-color var(--transition), box-shadow var(--transition);
 }
 
 html {
@@ -64,7 +66,6 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
-  transition: background var(--transition), color var(--transition);
 }
 
 button,
@@ -1101,6 +1102,64 @@ button {
 
 .risk-explanation-dot.target {
   background: var(--success);
+}
+
+/* ---------- Portfolio Risk View Toggle ---------- */
+
+.risk-view-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.risk-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all var(--transition);
+}
+
+.risk-view-btn:hover {
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.risk-view-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+
+/* ---------- Portfolio Risk Panel ---------- */
+
+.portfolio-risk-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.portfolio-risk-summary-card {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .risk-view-toggle {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .risk-view-btn {
+    justify-content: center;
+  }
 }
 
 /* ---------- Ticker Search ---------- */

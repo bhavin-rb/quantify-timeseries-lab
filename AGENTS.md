@@ -248,6 +248,35 @@ Refer to AGENTS.md and Implement Phase 8:
   - Do not alter existing Risk Management functionality (Phase 9).
 
 ---
+
+## Phase 11 – Portfolio-Level Risk Summary (Aggregate View)
+
+- Add a new sub-tab or button inside the Risk Management tab (Portfolio mode) labeled **"Portfolio Risk Level"**.
+- **Dual-layer view**:
+  - Keep existing per-ticker cards (Phase 9 & 10).
+  - Add a portfolio-level summary view accessible via the new button/sub-tab.
+- **Portfolio risk inputs**:
+  - Allow optional user-defined portfolio stop-loss and target (e.g., "sell portfolio if it drops 15%").
+  - If no inputs are provided, auto-calculate defaults based on weighted volatility and exposure of all tickers.
+- **Portfolio risk outputs**:
+  - Aggregate stop-loss and target values for the portfolio as a whole.
+  - Portfolio-level risk/reward ratio (combined risk vs. reward).
+- **Explanations**:
+  - Collapsible plain-language guidance for the portfolio:
+    - "Your portfolio risks $X to aim for $Y."
+    - "If the portfolio value drops below $Z, consider exiting."
+    - "Diversification smooths volatility compared to individual stocks."
+- **UI behavior**:
+  - Sub-tab/button toggles between per-ticker risk cards and portfolio-level summary.
+  - Responsive design: portfolio chart and explanation adapt to desktop and mobile layouts.
+- **Constraints**:
+  - Do not remove or alter per-ticker risk management functionality.
+  - Ensure portfolio-level view is clearly distinguished from individual ticker views.
+  - Do not alter existing functionality (Phase 1 to 10).
+  - Ensuring seamless UI/UX.
+
+
+---
  **Success criteria checklist**
 - End-to-end flow works: data fetch → clean → analyze → visualize → export  
 - No console errors in frontend or backend

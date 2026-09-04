@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import { apiGet, formatUsd, formatPct } from "../api.js";
 import ChartTooltip from "../components/ChartTooltip.jsx";
-import { FiAlertTriangle, FiRotateCcw, FiShield } from "react-icons/fi";
+import { FiAlertTriangle, FiRotateCcw, FiShield, FiPieChart, FiGrid } from "react-icons/fi";
 
 function parseTickers(value) {
   return String(value || "")
@@ -270,6 +270,225 @@ function RiskExplanation({ item, levels }) {
   );
 }
 
+function alignTickerSeries(items) {
+  const dateSets = items.map((it) => new Set(it.series.map((r) => r.date)));
+  const commonDates = [...dateSets[0]].filter((d) =>
+    dateSets.every((s) => s.has(d))
+  );
+  commonDates.sort();
+  return commonDates;
+}
+
+function computePortfolioLevels(items, portfolioInput, commonDates) {
+  const n = items.length;
+  const weight = 1 / n;
+  const portfolioSeries = commonDates.map((date) => {
+    let value = 0;
+    for (const it of items) {
+      const row = it.series.find((r) => r.date === date);
+      if (row) value += row.close * weight;
+    }
+    return { date, close: value };
+  });
+
+  if (portfolioSeries.length === 0) {
+    return {
+      portfolioValue: 0,
+      portfolioVol: 0,
+      stopPrice: 0,
+      targetPrice: 0,
+      riskReward: null,
+      portfolioSeries: [],
+    };
+  }
+
+  const portfolioValue = portfolioSeries[portfolioSeries.length - 1].close;
+  const portfolioVol = items.reduce(
+    (sum, it) => sum + it.volatility * weight,
+    0
+  );
+
+  const defaultStopLossPct = Math.max(0.1, portfolioVol);
+  const defaultTargetPct = Math.max(0.2, 2 * defaultStopLossPct);
+
+  let stopPrice;
+  let targetPrice;
+
+  if (!portfolioInput) {
+    stopPrice = portfolioValue * (1 - defaultStopLossPct);
+    targetPrice = portfolioValue * (1 + defaultTargetPct);
+  } else if (portfolioInput.mode === "price") {
+    const s = Number(portfolioInput.stop);
+    const t = Number(portfolioInput.target);
+    stopPrice = Number.isFinite(s) ? s : portfolioValue * (1 - defaultStopLossPct);
+    targetPrice = Number.isFinite(t) ? t : portfolioValue * (1 + defaultTargetPct);
+  } else {
+    const sp = Number(portfolioInput.stop);
+    const tp = Number(portfolioInput.target);
+    const stopPct = Number.isFinite(sp) ? sp : defaultStopLossPct * 100;
+    const targetPct = Number.isFinite(tp) ? tp : defaultTargetPct * 100;
+    stopPrice = portfolioValue * (1 - stopPct / 100);
+    targetPrice = portfolioValue * (1 + targetPct / 100);
+  }
+
+  const riskReward =
+    portfolioValue > stopPrice && targetPrice > portfolioValue
+      ? (targetPrice - portfolioValue) / (portfolioValue - stopPrice)
+      : null;
+
+  return {
+    portfolioValue,
+    portfolioVol,
+    defaultStopLossPct,
+    defaultTargetPct,
+    stopPrice,
+    targetPrice,
+    riskReward,
+    portfolioSeries,
+  };
+}
+
+function PortfolioRiskPanel({ items, portfolioInput, onUpdatePortfolio, onTogglePortfolioMode }) {
+  const commonDates = alignTickerSeries(items);
+  const levels = computePortfolioLevels(items, portfolioInput, commonDates);
+
+  return (
+    <div className="portfolio-risk-panel">
+      <div className="card risk-card portfolio-risk-summary-card">
+        <div className="risk-header">
+          <span className="risk-ticker">Portfolio ({items.map((i) => i.ticker).join(", ")})</span>
+          <span className="risk-meta">
+            Value {formatUsd(levels.portfolioValue)} · Ann. vol {formatPct(levels.portfolioVol)}
+          </span>
+        </div>
+
+        <div className="risk-controls">
+          <div className="risk-field">
+            <label>Stop-Loss 🔴</label>
+            <div className="risk-input-wrap">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={portfolioInput?.stop ?? ""}
+                placeholder={formatUsd(levels.stopPrice)}
+                onChange={(e) => onUpdatePortfolio("stop", e.target.value)}
+              />
+              {portfolioInput?.mode === "pct" && <span className="risk-suffix">%</span>}
+            </div>
+          </div>
+
+          <div className="risk-toggle" role="group" aria-label="Portfolio input mode">
+            <button
+              className={`${portfolioInput?.mode === "pct" ? "active" : ""}`}
+              onClick={onTogglePortfolioMode}
+              aria-pressed={portfolioInput?.mode === "pct"}
+            >
+              %
+            </button>
+            <button
+              className={`${portfolioInput?.mode === "price" ? "active" : ""}`}
+              onClick={onTogglePortfolioMode}
+              aria-pressed={portfolioInput?.mode === "price"}
+            >
+              $
+            </button>
+          </div>
+
+          <div className="risk-field">
+            <label>Target 🟢</label>
+            <div className="risk-input-wrap">
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={portfolioInput?.target ?? ""}
+                placeholder={formatUsd(levels.targetPrice)}
+                onChange={(e) => onUpdatePortfolio("target", e.target.value)}
+              />
+              {portfolioInput?.mode === "pct" && <span className="risk-suffix">%</span>}
+            </div>
+          </div>
+        </div>
+
+        <div className="risk-summary">
+          <span className="risk-chip risk-stop">
+            <span className="risk-dot stop" /> Stop-Loss {formatUsd(levels.stopPrice)}
+          </span>
+          <span className="risk-chip risk-target">
+            <span className="risk-dot target" /> Target {formatUsd(levels.targetPrice)}
+          </span>
+          <span className="risk-chip risk-rr">
+            Risk/Reward {levels.riskReward != null ? `1 : ${levels.riskReward.toFixed(2)}` : "—"}
+          </span>
+        </div>
+      </div>
+
+      <div className="card risk-chart-card">
+        <RiskChart
+          series={levels.portfolioSeries}
+          stopLoss={levels.stopPrice}
+          target={levels.targetPrice}
+        />
+        <PortfolioRiskExplanation levels={levels} />
+      </div>
+    </div>
+  );
+}
+
+function PortfolioRiskExplanation({ levels }) {
+  const { portfolioValue, stopPrice, targetPrice, riskReward } = levels;
+
+  return (
+    <details className="risk-explanation">
+      <summary>What do these levels mean for the portfolio?</summary>
+      <div className="risk-explanation-body">
+        <p>
+          Your portfolio is currently worth{" "}
+          <strong>{formatUsd(portfolioValue)}</strong> (equal-weight across all
+          tickers).
+        </p>
+
+        <div className="risk-explanation-item">
+          <span className="risk-explanation-dot stop" />
+          <p>
+            <strong>Stop-Loss ({formatUsd(stopPrice)}):</strong> If the portfolio
+            value drops below {formatUsd(stopPrice)}, consider exiting to limit
+            further losses.
+          </p>
+        </div>
+
+        <div className="risk-explanation-item">
+          <span className="risk-explanation-dot target" />
+          <p>
+            <strong>Target ({formatUsd(targetPrice)}):</strong> If the portfolio
+            value rises above {formatUsd(targetPrice)}, you can take profit and
+            lock in gains.
+          </p>
+        </div>
+
+        <p>
+          <strong>Risk / Reward:</strong>{" "}
+          {riskReward != null
+            ? `For every $1 you risk, you aim to make $${riskReward.toFixed(2)}.`
+            : "The target is currently set below your entry value — adjust your levels to get a meaningful ratio."}
+        </p>
+
+        <p>
+          <strong>Hold / Sell:</strong> Hold as long as the portfolio value stays
+          between the stop-loss and target. Sell if it hits either boundary.
+        </p>
+
+        <p>
+          <strong>Diversification:</strong> Holding multiple tickers smooths
+          volatility compared to individual stocks — a drop in one position may
+          be offset by gains in another.
+        </p>
+      </div>
+    </details>
+  );
+}
+
 export default function RiskManagementTab({
   tickers,
   startDate,
@@ -283,6 +502,8 @@ export default function RiskManagementTab({
   const [error, setError] = useState("");
   const [data, setData] = useState(null);
   const [inputs, setInputs] = useState({});
+  const [riskView, setRiskView] = useState("per-ticker");
+  const [portfolioInput, setPortfolioInput] = useState(null);
 
   const tickerList = parseTickers(tickers);
   const isSingle = mode === "single";
@@ -367,6 +588,53 @@ export default function RiskManagementTab({
     [update]
   );
 
+  const updatePortfolio = useCallback((field, value) => {
+    setPortfolioInput((prev) => {
+      const current = prev || { mode: "pct", stop: "", target: "" };
+      return { ...current, [field]: value };
+    });
+  }, []);
+
+  const togglePortfolioMode = useCallback(() => {
+    setPortfolioInput((prev) => {
+      const current = prev || { mode: "pct", stop: "", target: "" };
+      const nextMode = current.mode === "pct" ? "price" : "pct";
+      const n = data?.items?.length || 1;
+      const weight = 1 / n;
+      const portfolioValue = data?.items?.reduce(
+        (sum, it) => sum + it.latestPrice * weight,
+        0
+      ) || 0;
+      const portfolioVol = data?.items?.reduce(
+        (sum, it) => sum + it.volatility * weight,
+        0
+      ) || 0;
+      const defaultStopLossPct = Math.max(0.1, portfolioVol);
+      const defaultTargetPct = Math.max(0.2, 2 * defaultStopLossPct);
+
+      const nStop = Number(current.stop);
+      const nTarget = Number(current.target);
+      let stopVal;
+      let targetVal;
+
+      if (nextMode === "price") {
+        const stopPct = Number.isFinite(nStop) ? nStop : defaultStopLossPct * 100;
+        const targetPct = Number.isFinite(nTarget) ? nTarget : defaultTargetPct * 100;
+        stopVal = (portfolioValue * (1 - stopPct / 100)).toFixed(2);
+        targetVal = (portfolioValue * (1 + targetPct / 100)).toFixed(2);
+      } else {
+        stopVal = Number.isFinite(nStop)
+          ? ((1 - nStop / portfolioValue) * 100).toFixed(1)
+          : (defaultStopLossPct * 100).toFixed(1);
+        targetVal = Number.isFinite(nTarget)
+          ? ((nTarget / portfolioValue - 1) * 100).toFixed(1)
+          : (defaultTargetPct * 100).toFixed(1);
+      }
+
+      return { mode: nextMode, stop: stopVal, target: targetVal };
+    });
+  }, [data]);
+
   const renderBodyRow = (item) => {
     const input = inputs[item.ticker];
     const levels = computeLevels(item, input);
@@ -388,13 +656,32 @@ export default function RiskManagementTab({
   };
 
   const singleLayout = data && data.items.length === 1;
+  const showSubTabs = !isSingle && !singleLayout && data && data.items.length > 1;
 
   return (
     <>
+      {showSubTabs && (
+        <div className="risk-view-toggle">
+          <button
+            className={`risk-view-btn ${riskView === "per-ticker" ? "active" : ""}`}
+            onClick={() => setRiskView("per-ticker")}
+          >
+            <FiGrid size={14} /> Per-Ticker Risk
+          </button>
+          <button
+            className={`risk-view-btn ${riskView === "portfolio" ? "active" : ""}`}
+            onClick={() => setRiskView("portfolio")}
+          >
+            <FiPieChart size={14} /> Portfolio Risk Level
+          </button>
+        </div>
+      )}
+
       <div className="controls" style={{ justifyContent: "center" }}>
         <span className="risk-hint">
-          <FiShield size={14} /> Stop-loss &amp; target levels per ticker — defaults auto-calculated from
-          price and volatility. Override anytime.
+          <FiShield size={14} /> {showSubTabs && riskView === "portfolio"
+            ? "Portfolio-level stop-loss & target — defaults auto-calculated from weighted volatility. Override anytime."
+            : "Stop-loss & target levels per ticker — defaults auto-calculated from price and volatility. Override anytime."}
         </span>
         <button className="btn btn-reset" onClick={resetAll}>
           <FiRotateCcw size={14} /> Reset
@@ -405,7 +692,14 @@ export default function RiskManagementTab({
       {loading && <Loading text="Computing stop-loss and target levels…" />}
 
       {data && data.items.length > 0 && (
-        singleLayout ? (
+        showSubTabs && riskView === "portfolio" ? (
+          <PortfolioRiskPanel
+            items={data.items}
+            portfolioInput={portfolioInput}
+            onUpdatePortfolio={updatePortfolio}
+            onTogglePortfolioMode={togglePortfolioMode}
+          />
+        ) : singleLayout ? (
           (() => {
             const item = data.items[0];
             const input = inputs[item.ticker];
