@@ -10,19 +10,41 @@ export default function Navbar({ theme, onToggleTheme, route, navigate }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const goHome = (e) => {
+    e.preventDefault();
+    navigate("/");
+    window.scrollTo(0, 0);
+  };
+
+  const goAbout = (e) => {
+    e.preventDefault();
+    const scrollToAbout = () => {
+      const el = document.getElementById("about");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        setTimeout(scrollToAbout, 50);
+      }
+    };
+    if (route.startsWith("/dashboard") || route.startsWith("/contact")) {
+      navigate("/");
+    }
+    scrollToAbout();
+  };
+
   return (
     <nav className={`navbar ${scrolled ? "scrolled" : ""}`}>
-      <a className="brand" href="#/" onClick={() => navigate("/")}>
+      <a className="brand" href="#/" onClick={goHome}>
         <span className="logo">⟠</span>
         <span>
           TimeSeries <span className="brand-accent">Lab</span>
         </span>
       </a>
       <div className="nav-links">
-        <a className="link-label" href="#/" onClick={() => navigate("/")}>
+        <a className="link-label" href="#/" onClick={goHome}>
           Home
         </a>
-        <a className="link-label" href="#about" onClick={() => navigate("/")}>
+        <a className="link-label" href="#about" onClick={goAbout}>
           About
         </a>
         <button
