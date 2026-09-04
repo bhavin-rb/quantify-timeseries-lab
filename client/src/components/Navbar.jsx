@@ -32,6 +32,12 @@ export default function Navbar({ theme, onToggleTheme, route, navigate }) {
           Dashboard
         </button>
         <button
+          className={`nav-btn link-label ${route.startsWith("/contact") ? "active" : ""}`}
+          onClick={() => navigate("/contact")}
+        >
+          Contact
+        </button>
+        <button
           className="theme-toggle"
           onClick={onToggleTheme}
           title="Toggle theme"

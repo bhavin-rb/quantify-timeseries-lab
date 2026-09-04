@@ -3,6 +3,7 @@ import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import Landing from "./pages/Landing.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Contact from "./pages/Contact.jsx";
 
 function getTheme() {
   const stored = localStorage.getItem("tsl-theme");
@@ -36,6 +37,8 @@ export default function App() {
       <Navbar theme={theme} onToggleTheme={toggleTheme} route={route} navigate={navigate} />
       {route.startsWith("/dashboard") ? (
         <Dashboard navigate={navigate} />
+      ) : route.startsWith("/contact") ? (
+        <Contact navigate={navigate} />
       ) : (
         <Landing navigate={navigate} />
       )}
