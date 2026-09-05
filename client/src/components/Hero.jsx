@@ -18,7 +18,7 @@ export default function Hero({ navigate }) {
           <img src="/images/logo_main_new.png" alt="Quantify" className="hero-logo" />
         </span>
         <h1>
-          Prepare. Clean. Explore.
+          <span className="hero-tagline">Prepare. Clean. Explore.</span>
           <br />
           <span className="gradient-text">Financial Time Series.</span>
         </h1>
