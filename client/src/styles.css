@@ -618,18 +618,14 @@ button {
 }
 
 .contact-avatar {
-  width: 82px;
-  height: 82px;
+  width: 92px;
+  height: 92px;
   margin: 0 auto 22px;
   border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: #fff;
-  font-size: 1.7rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  box-shadow: 0 10px 26px color-mix(in srgb, var(--primary) 40%, transparent);
+  display: block;
+  object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--primary) 45%, transparent);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--primary) 40%, transparent);
 }
 
 .contact-card h2 {
@@ -650,36 +646,55 @@ button {
 .contact-links {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
   margin-bottom: 30px;
 }
 
-.contact-links a {
-  display: flex;
+.contact-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 13px 18px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg-elevated) 72%, transparent);
-  color: var(--text);
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 28px;
+  border-radius: 999px;
   text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  word-break: break-all;
-  transition: transform 0.2s, border-color var(--transition),
-    box-shadow var(--transition);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: transform 0.18s, box-shadow var(--transition),
+    border-color var(--transition), background var(--transition);
 }
 
-.contact-links a svg {
-  color: var(--primary-strong);
-  flex: none;
+.contact-btn:active {
+  transform: scale(0.97);
 }
 
-.contact-links a:hover {
-  transform: translateX(4px);
+.contact-linkedin {
+  background: #0077b5;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 119, 181, 0.35);
+}
+
+.contact-linkedin:hover {
+  transform: translateY(-2px);
+  background: #0087c9;
+  box-shadow: 0 14px 32px rgba(0, 119, 181, 0.5);
+}
+
+.contact-email {
+  background: color-mix(in srgb, var(--bg-elevated) 72%, transparent);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.contact-email:hover {
+  transform: translateY(-2px);
   border-color: var(--primary);
-  box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 18%, transparent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
+.contact-btn svg {
+  flex: none;
 }
 
 .contact-back {

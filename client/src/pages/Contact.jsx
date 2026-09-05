@@ -10,21 +10,26 @@ export default function Contact({ navigate }) {
       <div className="contact-overlay" />
       <div className="contact-content">
         <div className="contact-card">
-          <div className="contact-avatar">BB</div>
+          <img
+            className="contact-avatar"
+            src="/images/contact_logo_bg1-circle.png"
+            alt="Quantify - Bhavin Rasiklal Borkhataria"
+          />
           <h2>Bhavin Rasiklal Borkhataria</h2>
           <p className="contact-role">
             Quantitative Analyst (MScFE) &amp; Technical Representative
           </p>
           <div className="contact-links">
             <a
+              className="contact-btn contact-linkedin"
               href="https://www.linkedin.com/in/bhavin-borkhataria-9673839b"
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FiLinkedin size={18} /> www.linkedin.com/in/bhavin-borkhataria-9673839b
+              <FiLinkedin size={18} /> Connect on LinkedIn
             </a>
-            <a href="mailto:bhavin1234@gmail.com">
-              <FiMail size={18} /> bhavin1234@gmail.com
+            <a className="contact-btn contact-email" href="mailto:bhavin1234@gmail.com">
+              <FiMail size={18} /> Send Email
             </a>
           </div>
           <button className="btn btn-ghost contact-back" onClick={() => navigate("/")}>
