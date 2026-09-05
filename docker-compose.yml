@@ -16,6 +16,11 @@ services:
     container_name: timeseries-lab-client
     ports:
       - "8080:80"
+    environment:
+      PORT: 80
+      API_PROXY_SCHEME: http
+      API_PROXY_HOST: server
+      API_PROXY_PORT: "5000"
     depends_on:
       - server
     restart: unless-stopped

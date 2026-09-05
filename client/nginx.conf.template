@@ -1,5 +1,5 @@
 server {
-    listen 80;
+    listen ${PORT};
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
@@ -9,7 +9,7 @@ server {
     gzip_min_length 1024;
 
     location /api/ {
-        proxy_pass http://server:5000;
+        proxy_pass ${API_PROXY_SCHEME}://${API_PROXY_HOST}:${API_PROXY_PORT};
         proxy_http_version 1.1;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;

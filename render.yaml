@@ -1,0 +1,51 @@
+# Render Blueprint for TimeSeries Lab (Docker runtime).
+# docker-compose.yml is only for local testing — Render does not recognize it.
+#
+# After first deploy, set the TIINGO_API_KEY secret in the Render Dashboard
+# (you will be prompted because of `sync: false` below).
+#
+# Notes:
+#  - The server listens on port 5000 instead of the 10000 default because
+#    10000 is on Render's list of reserved ports for its private network.
+#  - The client proxies /api to the server over HTTPS using the server's
+#    public hostname (RENDER_EXTERNAL_HOSTNAME). This works on both the
+#    free and paid plans. If you later move the API to a paid plan with
+#    private networking, you can switch API_PROXY_* to `fromService` `host`
+#    + `port` properties instead.
+#  - Keep both services in the same region (default: oregon).
+
+services:
+  # Backend API (Express + Tiingo)
+  - type: web
+    name: timeseries-lab-server
+    runtime: docker
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: "5000"
+      - key: TIINGO_API_KEY
+        sync: false
+
+  # Frontend (Vite build served by nginx)
+  - type: web
+    name: timeseries-lab-client
+    runtime: docker
+    dockerfilePath: ./client/Dockerfile
+    dockerContext: ./client
+    plan: free
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: API_PROXY_SCHEME
+        value: "https"
+      - key: API_PROXY_PORT
+        value: "443"
+      - key: API_PROXY_HOST
+        fromService:
+          name: timeseries-lab-server
+          type: web
+          envVarKey: RENDER_EXTERNAL_HOSTNAME
