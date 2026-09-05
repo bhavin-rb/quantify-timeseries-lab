@@ -9,6 +9,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 import dataRouter from "./routes/data.js";
+import searchRouter from "./routes/search.js";
 import edaRouter from "./routes/eda.js";
 import portfolioRouter from "./routes/portfolio.js";
 import insightsRouter from "./routes/insights.js";
@@ -29,6 +30,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/data", dataRouter);
+app.use("/api/search", searchRouter);
 app.use("/api/eda", edaRouter);
 app.use("/api/portfolio", portfolioRouter);
 app.use("/api/insights", insightsRouter);

@@ -1388,6 +1388,16 @@ button {
   white-space: nowrap;
 }
 
+.ticker-suggestion-hint {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: default;
+}
+
+.ticker-suggestion-hint:hover {
+  background: transparent;
+}
+
 .controls .btn {
   padding: 10px 26px;
 }
