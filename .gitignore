@@ -30,8 +30,7 @@ coverage/
 *.swo
 
 # Docker
-*.dockerignore
-Dockerfile*
+
 
 # Misc
 .DS_Store
